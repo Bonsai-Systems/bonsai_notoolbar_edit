@@ -6,6 +6,11 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
 
+## [1.1.1] - 2026-08-26
+
+### Fixed
+- [bonsai-notoolbar-edit.php] Icons weren't rendering because the active theme dequeues/doesn't load the `dashicons` stylesheet on the front end. Replaced the dashicons-font approach with hardcoded inline SVGs (dashboard / edit), so the icons no longer depend on any external font or stylesheet being present
+
 ## [1.1.0] - 2026-08-26
 
 ### Changed

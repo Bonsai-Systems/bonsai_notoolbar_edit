@@ -6,9 +6,9 @@ A minimal WordPress plugin that hides the default admin toolbar on the front end
 
 - Hides the standard WordPress admin bar (`show_admin_bar`) on the front end only — wp-admin is untouched.
 - Renders a small fixed icon panel on every front-end page with:
-  - **WP Dashboard** (dashicons-dashboard) — links to `wp-admin`.
-  - **Edit Page** (dashicons-edit) — links straight to the editor for the current singular post/page. Hidden automatically when there's no editable post for the current view (archives, search results, 404s, etc.) or the user can't edit that specific post.
-  - Both icons carry a `title` and screen-reader-only text, so the link purpose is still available to assistive tech and on hover.
+  - **WP Dashboard** — links to `wp-admin`.
+  - **Edit Page** — links straight to the editor for the current singular post/page. Hidden automatically when there's no editable post for the current view (archives, search results, 404s, etc.) or the user can't edit that specific post.
+  - Icons are hardcoded inline SVGs (not an icon font), so they render regardless of whether the active theme loads `dashicons` on the front end. Both carry a `title` and screen-reader-only text, so the link purpose is still available to assistive tech and on hover.
 - Corner placement (top right / top left / bottom right / bottom left) is configurable under **Settings → No Toolbar Edit**. Defaults to top right.
 - Restricted to users who can `edit_posts` by default (filterable via `bonsai_notoolbar_edit_capability`). The settings page itself requires `manage_options` by default (filterable via `bonsai_notoolbar_edit_settings_capability`).
 - Single option (`bne_placement`) stored in the database; removed on uninstall.

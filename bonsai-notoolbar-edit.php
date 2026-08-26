@@ -3,7 +3,7 @@
  * Plugin Name: Bonsai No Toolbar Edit
  * Plugin URI:  https://bonsaidigitalcollective.co.uk/
  * Description: Hides the WordPress admin toolbar on the front end and replaces it with two fixed icon links: WP Dashboard and Edit Page. Placement is configurable under Settings → No Toolbar Edit.
- * Version:     1.1.0
+ * Version:     1.1.1
  * Author:      The Bonsai Digital Collective
  * Author URI:  https://bonsaidigitalcollective.co.uk/
  * Requires at least: 6.0
@@ -32,7 +32,7 @@ $bne_update_checker = PucFactory::buildUpdateChecker(
 $bne_update_checker->setBranch( 'main' );
 $bne_update_checker->getVcsApi()->enableReleaseAssets();
 
-define( 'BNE_VERSION', '1.1.0' );
+define( 'BNE_VERSION', '1.1.1' );
 define( 'BNE_OPTION_GROUP', 'bne_settings_group' );
 define( 'BNE_PAGE_SLUG', 'bonsai-notoolbar-edit' );
 define( 'BNE_CAPABILITY', apply_filters( 'bonsai_notoolbar_edit_capability', 'edit_posts' ) );
@@ -175,13 +175,18 @@ function bne_maybe_hide_admin_bar( $show ) {
 // Fixed Dashboard / Edit Page icon links (front end only)
 // ---------------------------------------------------------------------------
 
-add_action( 'wp_enqueue_scripts', 'bne_enqueue_dashicons' );
-function bne_enqueue_dashicons() {
-	if ( is_admin() || ! current_user_can( BNE_CAPABILITY ) ) {
-		return;
-	}
+/**
+ * Inline SVG icons. Kept here rather than loading an icon font so the
+ * links always render, regardless of whether the active theme dequeues
+ * dashicons on the front end.
+ */
+function bne_get_icon_svg( $icon ) {
+	$icons = array(
+		'dashboard' => '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="9"></rect><rect x="14" y="3" width="7" height="5"></rect><rect x="14" y="12" width="7" height="9"></rect><rect x="3" y="16" width="7" height="5"></rect></svg>',
+		'edit'      => '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"></path><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4Z"></path></svg>',
+	);
 
-	wp_enqueue_style( 'dashicons' );
+	return isset( $icons[ $icon ] ) ? $icons[ $icon ] : '';
 }
 
 add_action( 'wp_footer', 'bne_render_fixed_links' );
@@ -204,12 +209,12 @@ function bne_render_fixed_links() {
 	?>
 	<div id="bne-fixed-links">
 		<a href="<?php echo esc_url( $dashboard_url ); ?>" class="bne-fixed-links__link" title="<?php esc_attr_e( 'WP Dashboard', 'bonsai-notoolbar-edit' ); ?>">
-			<span class="dashicons dashicons-dashboard" aria-hidden="true"></span>
+			<?php echo bne_get_icon_svg( 'dashboard' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Static, hardcoded SVG markup; no user input. ?>
 			<span class="screen-reader-text"><?php esc_html_e( 'WP Dashboard', 'bonsai-notoolbar-edit' ); ?></span>
 		</a>
 		<?php if ( $edit_url ) : ?>
 			<a href="<?php echo esc_url( $edit_url ); ?>" class="bne-fixed-links__link" title="<?php esc_attr_e( 'Edit Page', 'bonsai-notoolbar-edit' ); ?>">
-				<span class="dashicons dashicons-edit" aria-hidden="true"></span>
+				<?php echo bne_get_icon_svg( 'edit' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Static, hardcoded SVG markup; no user input. ?>
 				<span class="screen-reader-text"><?php esc_html_e( 'Edit Page', 'bonsai-notoolbar-edit' ); ?></span>
 			</a>
 		<?php endif; ?>
@@ -239,10 +244,10 @@ function bne_render_fixed_links() {
 			background: #ee4367;
 			color: #fff;
 		}
-		#bne-fixed-links .dashicons {
+		#bne-fixed-links .bne-fixed-links__link svg {
+			display: block;
 			width: 18px;
 			height: 18px;
-			font-size: 18px;
 		}
 	</style>
 	<?php
