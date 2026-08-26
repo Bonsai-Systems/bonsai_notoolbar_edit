@@ -3,7 +3,7 @@
  * Plugin Name: Bonsai No Toolbar Edit
  * Plugin URI:  https://bonsaidigitalcollective.co.uk/
  * Description: Hides the WordPress admin toolbar on the front end and replaces it with two fixed icon links: WP Dashboard and Edit Page. Placement is configurable under Settings → No Toolbar Edit.
- * Version:     1.1.1
+ * Version:     1.1.2
  * Author:      The Bonsai Digital Collective
  * Author URI:  https://bonsaidigitalcollective.co.uk/
  * Requires at least: 6.0
@@ -32,7 +32,7 @@ $bne_update_checker = PucFactory::buildUpdateChecker(
 $bne_update_checker->setBranch( 'main' );
 $bne_update_checker->getVcsApi()->enableReleaseAssets();
 
-define( 'BNE_VERSION', '1.1.1' );
+define( 'BNE_VERSION', '1.1.2' );
 define( 'BNE_OPTION_GROUP', 'bne_settings_group' );
 define( 'BNE_PAGE_SLUG', 'bonsai-notoolbar-edit' );
 define( 'BNE_CAPABILITY', apply_filters( 'bonsai_notoolbar_edit_capability', 'edit_posts' ) );
@@ -210,12 +210,12 @@ function bne_render_fixed_links() {
 	<div id="bne-fixed-links">
 		<a href="<?php echo esc_url( $dashboard_url ); ?>" class="bne-fixed-links__link" title="<?php esc_attr_e( 'WP Dashboard', 'bonsai-notoolbar-edit' ); ?>">
 			<?php echo bne_get_icon_svg( 'dashboard' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Static, hardcoded SVG markup; no user input. ?>
-			<span class="screen-reader-text"><?php esc_html_e( 'WP Dashboard', 'bonsai-notoolbar-edit' ); ?></span>
+			<span class="bne-fixed-links__label"><?php esc_html_e( 'WP Dashboard', 'bonsai-notoolbar-edit' ); ?></span>
 		</a>
 		<?php if ( $edit_url ) : ?>
 			<a href="<?php echo esc_url( $edit_url ); ?>" class="bne-fixed-links__link" title="<?php esc_attr_e( 'Edit Page', 'bonsai-notoolbar-edit' ); ?>">
 				<?php echo bne_get_icon_svg( 'edit' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Static, hardcoded SVG markup; no user input. ?>
-				<span class="screen-reader-text"><?php esc_html_e( 'Edit Page', 'bonsai-notoolbar-edit' ); ?></span>
+				<span class="bne-fixed-links__label"><?php esc_html_e( 'Edit Page', 'bonsai-notoolbar-edit' ); ?></span>
 			</a>
 		<?php endif; ?>
 	</div>
@@ -227,9 +227,15 @@ function bne_render_fixed_links() {
 			display: flex;
 			gap: 8px;
 			padding: 8px;
+			line-height: 1;
+		}
+		#bne-fixed-links,
+		#bne-fixed-links * {
+			box-sizing: border-box;
 		}
 		#bne-fixed-links .bne-fixed-links__link {
 			display: flex;
+			flex: none;
 			align-items: center;
 			justify-content: center;
 			width: 32px;
@@ -246,8 +252,24 @@ function bne_render_fixed_links() {
 		}
 		#bne-fixed-links .bne-fixed-links__link svg {
 			display: block;
-			width: 18px;
-			height: 18px;
+			flex: none;
+			width: 18px !important;
+			height: 18px !important;
+			max-width: none;
+			fill: none;
+			stroke: currentColor;
+		}
+		/* Visually hidden, not relying on the theme to provide .screen-reader-text */
+		#bne-fixed-links .bne-fixed-links__label {
+			position: absolute !important;
+			width: 1px !important;
+			height: 1px !important;
+			padding: 0 !important;
+			margin: -1px !important;
+			overflow: hidden !important;
+			clip: rect(0, 0, 0, 0) !important;
+			white-space: nowrap !important;
+			border: 0 !important;
 		}
 	</style>
 	<?php

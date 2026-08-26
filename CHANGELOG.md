@@ -6,6 +6,11 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
 
+## [1.1.2] - 2026-08-26
+
+### Fixed
+- [bonsai-notoolbar-edit.php] SVG icons and their labels weren't rendering correctly: the label `<span>` used WordPress core's `.screen-reader-text` class, which many themes don't define on the front end, so it was showing as plain visible text instead of being hidden; and the SVGs themselves were being collapsed to 0 width by theme CSS resets. Renamed the label span to a scoped `.bne-fixed-links__label` class with its own visually-hidden CSS (no longer depends on theme support), and forced explicit SVG sizing with `!important` plus `flex: none` on both the icon and its parent link so theme flex/svg resets can't collapse them
+
 ## [1.1.1] - 2026-08-26
 
 ### Fixed
