@@ -6,6 +6,11 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
 
+## [1.2.0] - 2026-09-03
+
+### Added
+- [bonsai-notoolbar-edit.php] **Link Hover Colour** setting under **Settings → No Toolbar Edit** so the icon links' hover/focus background can be matched to a client brand. Stored as the `bne_hover_color` option (native colour picker, `sanitize_hex_color` on save), defaults to the Bonsai pink `#ee4367`, and is deleted on uninstall
+
 ## [1.1.2] - 2026-08-26
 
 ### Fixed

@@ -2,8 +2,8 @@
 /**
  * Plugin Name: Bonsai No Toolbar Edit
  * Plugin URI:  https://bonsaidigitalcollective.co.uk/
- * Description: Hides the WordPress admin toolbar on the front end and replaces it with two fixed icon links: WP Dashboard and Edit Page. Placement is configurable under Settings → No Toolbar Edit.
- * Version:     1.1.2
+ * Description: Hides the WordPress admin toolbar on the front end and replaces it with two fixed icon links: WP Dashboard and Edit Page. Placement and hover colour are configurable under Settings → No Toolbar Edit.
+ * Version:     1.2.0
  * Author:      The Bonsai Digital Collective
  * Author URI:  https://bonsaidigitalcollective.co.uk/
  * Requires at least: 6.0
@@ -32,9 +32,10 @@ $bne_update_checker = PucFactory::buildUpdateChecker(
 $bne_update_checker->setBranch( 'main' );
 $bne_update_checker->getVcsApi()->enableReleaseAssets();
 
-define( 'BNE_VERSION', '1.1.2' );
+define( 'BNE_VERSION', '1.2.0' );
 define( 'BNE_OPTION_GROUP', 'bne_settings_group' );
 define( 'BNE_PAGE_SLUG', 'bonsai-notoolbar-edit' );
+define( 'BNE_DEFAULT_HOVER_COLOR', '#ee4367' );
 define( 'BNE_CAPABILITY', apply_filters( 'bonsai_notoolbar_edit_capability', 'edit_posts' ) );
 define( 'BNE_SETTINGS_CAPABILITY', apply_filters( 'bonsai_notoolbar_edit_settings_capability', 'manage_options' ) );
 
@@ -54,6 +55,16 @@ function bne_register_settings() {
 		)
 	);
 
+	register_setting(
+		BNE_OPTION_GROUP,
+		'bne_hover_color',
+		array(
+			'type'              => 'string',
+			'sanitize_callback' => 'bne_sanitize_hover_color',
+			'default'           => BNE_DEFAULT_HOVER_COLOR,
+		)
+	);
+
 	add_settings_section(
 		'bne_main_section',
 		'',
@@ -68,6 +79,26 @@ function bne_register_settings() {
 		BNE_PAGE_SLUG,
 		'bne_main_section'
 	);
+
+	add_settings_field(
+		'bne_hover_color',
+		__( 'Link Hover Colour', 'bonsai-notoolbar-edit' ),
+		'bne_render_hover_color_field',
+		BNE_PAGE_SLUG,
+		'bne_main_section'
+	);
+}
+
+/**
+ * Sanitises the hover colour option, falling back to the brand default.
+ *
+ * @param mixed $value Raw option value.
+ * @return string A valid hex colour.
+ */
+function bne_sanitize_hover_color( $value ) {
+	$color = sanitize_hex_color( is_string( $value ) ? $value : '' );
+
+	return $color ? $color : BNE_DEFAULT_HOVER_COLOR;
 }
 
 function bne_get_placements() {
@@ -131,6 +162,27 @@ function bne_render_placement_field() {
 	</fieldset>
 	<p class="description">
 		<?php esc_html_e( 'Where the WP Dashboard and Edit Page icons appear on the front end.', 'bonsai-notoolbar-edit' ); ?>
+	</p>
+	<?php
+}
+
+function bne_render_hover_color_field() {
+	$value = get_option( 'bne_hover_color', BNE_DEFAULT_HOVER_COLOR );
+	?>
+	<input
+		type="color"
+		name="bne_hover_color"
+		value="<?php echo esc_attr( $value ); ?>"
+	/>
+	<code><?php echo esc_html( $value ); ?></code>
+	<p class="description">
+		<?php
+		printf(
+			/* translators: %s: default hex colour. */
+			esc_html__( 'Background colour of the icon links on hover and keyboard focus. Defaults to %s.', 'bonsai-notoolbar-edit' ),
+			esc_html( BNE_DEFAULT_HOVER_COLOR )
+		);
+		?>
 	</p>
 	<?php
 }
@@ -206,6 +258,7 @@ function bne_render_fixed_links() {
 		'bottom-left'  => 'bottom:0;left:0;',
 	);
 	$position     = isset( $position_css[ $placement ] ) ? $position_css[ $placement ] : $position_css['top-right'];
+	$hover_color  = bne_sanitize_hover_color( get_option( 'bne_hover_color', BNE_DEFAULT_HOVER_COLOR ) );
 	?>
 	<div id="bne-fixed-links">
 		<a href="<?php echo esc_url( $dashboard_url ); ?>" class="bne-fixed-links__link" title="<?php esc_attr_e( 'WP Dashboard', 'bonsai-notoolbar-edit' ); ?>">
@@ -247,7 +300,7 @@ function bne_render_fixed_links() {
 		}
 		#bne-fixed-links .bne-fixed-links__link:hover,
 		#bne-fixed-links .bne-fixed-links__link:focus {
-			background: #ee4367;
+			background: <?php echo esc_html( $hover_color ); ?>;
 			color: #fff;
 		}
 		#bne-fixed-links .bne-fixed-links__link svg {
@@ -282,4 +335,5 @@ function bne_render_fixed_links() {
 register_uninstall_hook( __FILE__, 'bne_uninstall' );
 function bne_uninstall() {
 	delete_option( 'bne_placement' );
+	delete_option( 'bne_hover_color' );
 }

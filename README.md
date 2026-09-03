@@ -10,8 +10,9 @@ A minimal WordPress plugin that hides the default admin toolbar on the front end
   - **Edit Page** — links straight to the editor for the current singular post/page. Hidden automatically when there's no editable post for the current view (archives, search results, 404s, etc.) or the user can't edit that specific post.
   - Icons are hardcoded inline SVGs (not an icon font), so they render regardless of whether the active theme loads `dashicons` on the front end. Both carry a `title` and screen-reader-only text, so the link purpose is still available to assistive tech and on hover.
 - Corner placement (top right / top left / bottom right / bottom left) is configurable under **Settings → No Toolbar Edit**. Defaults to top right.
+- Link hover/focus colour is configurable on the same settings page (native colour picker) so it can match a client brand. Defaults to the Bonsai pink `#ee4367`.
 - Restricted to users who can `edit_posts` by default (filterable via `bonsai_notoolbar_edit_capability`). The settings page itself requires `manage_options` by default (filterable via `bonsai_notoolbar_edit_settings_capability`).
-- Single option (`bne_placement`) stored in the database; removed on uninstall.
+- Two options (`bne_placement`, `bne_hover_color`) stored in the database; removed on uninstall.
 
 ## Requirements
 
@@ -39,11 +40,12 @@ add_filter( 'bonsai_notoolbar_edit_capability', function () {
 
 ## Data Structure
 
-One option is stored:
+Two options are stored:
 
 - `bne_placement` (string) — one of `top-right`, `top-left`, `bottom-right`, `bottom-left`.
+- `bne_hover_color` (string) — a hex colour (e.g. `#ee4367`) used for the icon links' hover/focus background.
 
-Deleted when the plugin is uninstalled.
+Both are deleted when the plugin is uninstalled.
 
 ## Updates
 
