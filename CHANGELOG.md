@@ -6,6 +6,16 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
 
+## [1.3.0] - 2026-09-30
+
+### Changed
+- [includes/admin-ui.php, assets/] Settings → No Toolbar Edit restyled with the Bonsai admin design system: logo header with version and GitHub/changelog links, settings in a card. Stylesheet loads on this screen only. No option or field changes.
+
+### Fixed
+- [bonsai-notoolbar-edit.php] Sites using the `bonsai_notoolbar_edit_settings_capability` filter could open the settings page but not save it, because `options.php` still required `manage_options`. Added `option_page_capability_bne_settings_group`.
+- [bonsai-notoolbar-edit.php] Self-updates never worked: the update checker pointed at `Bonsai-Systems/bonsai-notoolbar-edit`, which doesn't exist (the repo is `bonsai_notoolbar_edit`). Sites on 1.2.0 or earlier need this version installed manually once; updates are automatic from then on.
+- [bonsai-notoolbar-edit.php] Hover colour label wasn't tied to its input; added `label_for` and an ID. Removed inline `style` from the placement radios.
+
 ## [1.2.0] - 2026-09-03
 
 ### Added
