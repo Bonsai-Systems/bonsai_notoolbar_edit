@@ -2,8 +2,8 @@
 /**
  * Plugin Name: Bonsai No Toolbar Edit
  * Plugin URI:  https://bonsaidigitalcollective.co.uk/
- * Description: Hides the WordPress admin toolbar on the front end and replaces it with two fixed icon links: WP Dashboard and Edit Page. Placement and hover colour are configurable under Settings → No Toolbar Edit.
- * Version:     1.3.0
+ * Description: Hides the WordPress admin toolbar on the front end and replaces it with two fixed icon links: WP Dashboard and Edit Page. Placement and hover colour are configurable under Bonsai → No Toolbar Edit.
+ * Version:     1.4.0
  * Author:      The Bonsai Digital Collective
  * Author URI:  https://bonsaidigitalcollective.co.uk/
  * Requires at least: 6.0
@@ -32,7 +32,7 @@ $bne_update_checker = PucFactory::buildUpdateChecker(
 $bne_update_checker->setBranch( 'main' );
 $bne_update_checker->getVcsApi()->enableReleaseAssets();
 
-define( 'BNE_VERSION', '1.3.0' );
+define( 'BNE_VERSION', '1.4.0' );
 define( 'BNE_OPTION_GROUP', 'bne_settings_group' );
 define( 'BNE_PAGE_SLUG', 'bonsai-notoolbar-edit' );
 define( 'BNE_DEFAULT_HOVER_COLOR', '#ee4367' );
@@ -40,7 +40,9 @@ define( 'BNE_CAPABILITY', apply_filters( 'bonsai_notoolbar_edit_capability', 'ed
 define( 'BNE_SETTINGS_CAPABILITY', apply_filters( 'bonsai_notoolbar_edit_settings_capability', 'manage_options' ) );
 define( 'BNE_URL', plugin_dir_url( __FILE__ ) );
 
-require_once plugin_dir_path( __FILE__ ) . 'includes/admin-ui.php';
+// Shared Bonsai admin menu, page shell and suite installer. Bundled copy of
+// the bonsai-hub repo; update it with bonsai-hub/bin/sync.sh, not by hand.
+require_once plugin_dir_path( __FILE__ ) . 'lib/bonsai-hub/bonsai-hub.php';
 
 // ---------------------------------------------------------------------------
 // Settings registration
@@ -138,20 +140,31 @@ function bne_sanitize_placement( $value ) {
 // Admin menu + page
 // ---------------------------------------------------------------------------
 
-add_action( 'admin_menu', 'bne_add_settings_page' );
-function bne_add_settings_page() {
-	add_options_page(
-		__( 'Bonsai No Toolbar Edit', 'bonsai-notoolbar-edit' ),
-		__( 'No Toolbar Edit', 'bonsai-notoolbar-edit' ),
-		BNE_SETTINGS_CAPABILITY,
-		BNE_PAGE_SLUG,
-		'bne_render_settings_page'
+add_filter( 'bonsai_hub_modules', 'bne_register_hub_module' );
+/**
+ * Registers the settings screen under the shared Bonsai menu. Old
+ * options-general.php?page=bonsai-notoolbar-edit links are redirected
+ * here by the hub.
+ *
+ * @param array $modules Modules registered so far.
+ * @return array
+ */
+function bne_register_hub_module( $modules ) {
+	$modules[ BNE_PAGE_SLUG ] = array(
+		'label'       => __( 'No Toolbar Edit', 'bonsai-notoolbar-edit' ),
+		'title'       => __( 'Bonsai No Toolbar Edit', 'bonsai-notoolbar-edit' ),
+		'description' => __( 'Hides the default admin toolbar on the front end for editors and shows fixed WP Dashboard / Edit Page icon links instead.', 'bonsai-notoolbar-edit' ),
+		'version'     => BNE_VERSION,
+		'repo'        => 'https://github.com/Bonsai-Systems/bonsai_notoolbar_edit',
+		'capability'  => BNE_SETTINGS_CAPABILITY,
+		'render'      => 'bne_render_settings_page',
 	);
+	return $modules;
 }
 
 add_filter( 'plugin_action_links_' . plugin_basename( __FILE__ ), 'bne_add_settings_link' );
 function bne_add_settings_link( $links ) {
-	$settings_link = '<a href="' . esc_url( admin_url( 'options-general.php?page=' . BNE_PAGE_SLUG ) ) . '">' . esc_html__( 'Settings', 'bonsai-notoolbar-edit' ) . '</a>';
+	$settings_link = '<a href="' . esc_url( admin_url( 'admin.php?page=' . BNE_PAGE_SLUG ) ) . '">' . esc_html__( 'Settings', 'bonsai-notoolbar-edit' ) . '</a>';
 	array_unshift( $links, $settings_link );
 	return $links;
 }
@@ -202,44 +215,26 @@ function bne_render_hover_color_field() {
 	<?php
 }
 
-function bne_render_settings_page() {
-	if ( ! current_user_can( BNE_SETTINGS_CAPABILITY ) ) {
-		wp_die( esc_html__( 'You do not have sufficient permissions to access this page.', 'bonsai-notoolbar-edit' ) );
-	}
-	?>
-	<div class="wrap bonsai-ui bonsai-ui--narrow">
-		<?php
-		bne_render_admin_header(
-			__( 'Bonsai No Toolbar Edit', 'bonsai-notoolbar-edit' ),
-			__( 'Hides the default admin toolbar on the front end for editors and shows fixed WP Dashboard / Edit Page icon links instead.', 'bonsai-notoolbar-edit' )
-		);
-		?>
-		<form method="post" action="options.php">
-			<section class="bonsai-ui-card" aria-labelledby="bne-links-title">
-				<h2 class="bonsai-ui-card__title" id="bne-links-title"><?php esc_html_e( 'Icon links', 'bonsai-notoolbar-edit' ); ?></h2>
-				<?php
-				settings_fields( BNE_OPTION_GROUP );
-				do_settings_sections( BNE_PAGE_SLUG );
-				?>
-			</section>
-			<?php submit_button(); ?>
-		</form>
-	</div>
-	<?php
-}
-
-add_action( 'admin_enqueue_scripts', 'bne_admin_enqueue' );
 /**
- * Bonsai admin styles, on this plugin's settings screen only.
+ * Settings form. The hub prints the page wrap, header, notices and nav
+ * around it, loads the Bonsai styles, and has already checked
+ * BNE_SETTINGS_CAPABILITY.
  *
- * @param string $hook_suffix Current admin page hook suffix.
+ * @return void
  */
-function bne_admin_enqueue( $hook_suffix ) {
-	if ( 'settings_page_' . BNE_PAGE_SLUG !== $hook_suffix ) {
-		return;
-	}
-
-	bne_enqueue_admin_ui();
+function bne_render_settings_page() {
+	?>
+	<form method="post" action="options.php">
+		<section class="bonsai-ui-card" aria-labelledby="bne-links-title">
+			<h2 class="bonsai-ui-card__title" id="bne-links-title"><?php esc_html_e( 'Icon links', 'bonsai-notoolbar-edit' ); ?></h2>
+			<?php
+			settings_fields( BNE_OPTION_GROUP );
+			do_settings_sections( BNE_PAGE_SLUG );
+			?>
+		</section>
+		<?php submit_button(); ?>
+	</form>
+	<?php
 }
 
 // ---------------------------------------------------------------------------

@@ -9,7 +9,7 @@ A minimal WordPress plugin that hides the default admin toolbar on the front end
   - **WP Dashboard** — links to `wp-admin`.
   - **Edit Page** — links straight to the editor for the current singular post/page. Hidden automatically when there's no editable post for the current view (archives, search results, 404s, etc.) or the user can't edit that specific post.
   - Icons are hardcoded inline SVGs (not an icon font), so they render regardless of whether the active theme loads `dashicons` on the front end. Both carry a `title` and screen-reader-only text, so the link purpose is still available to assistive tech and on hover.
-- Corner placement (top right / top left / bottom right / bottom left) is configurable under **Settings → No Toolbar Edit**. Defaults to top right.
+- Corner placement (top right / top left / bottom right / bottom left) is configurable under **Bonsai → No Toolbar Edit**. Defaults to top right.
 - Link hover/focus colour is configurable on the same settings page (native colour picker) so it can match a client brand. Defaults to the Bonsai pink `#ee4367`.
 - Restricted to users who can `edit_posts` by default (filterable via `bonsai_notoolbar_edit_capability`). The settings page itself requires `manage_options` by default (filterable via `bonsai_notoolbar_edit_settings_capability`).
 - Two options (`bne_placement`, `bne_hover_color`) stored in the database; removed on uninstall.
@@ -22,7 +22,7 @@ A minimal WordPress plugin that hides the default admin toolbar on the front end
 ## Usage
 
 1. Activate the plugin.
-2. Go to **Settings → No Toolbar Edit** and choose a corner placement (defaults to top right).
+2. Go to **Bonsai → No Toolbar Edit** and choose a corner placement (defaults to top right).
 3. Log in as a user who can edit content (author or above) and view the front end — the standard toolbar is gone, replaced by the two fixed icon links in the chosen corner.
 4. Logged-out visitors and users without `edit_posts` see no change.
 
@@ -46,6 +46,14 @@ Two options are stored:
 - `bne_hover_color` (string) — a hex colour (e.g. `#ee4367`) used for the icon links' hover/focus background.
 
 Both are deleted when the plugin is uninstalled.
+
+## Bonsai menu
+
+This plugin's screens live in the shared **Bonsai** admin menu, provided by [Bonsai Hub](https://github.com/Bonsai-Systems/bonsai-hub). A copy of the hub is bundled in `lib/bonsai-hub/`, so this plugin sets up the menu on its own. Other Bonsai plugins appear alongside it, and **Bonsai → Plugins** installs, activates and deactivates the rest of the suite.
+
+- Don't edit `lib/bonsai-hub/` by hand. Change the bonsai-hub repo and run its `bin/sync.sh`.
+- Old `options-general.php?page=bonsai-notoolbar-edit` links redirect to the new screen.
+- Release zips must include `lib/`.
 
 ## Updates
 
