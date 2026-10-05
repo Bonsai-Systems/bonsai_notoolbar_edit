@@ -3,7 +3,7 @@
  * Plugin Name: Bonsai No Toolbar Edit
  * Plugin URI:  https://bonsaidigitalcollective.co.uk/
  * Description: Hides the WordPress admin toolbar on the front end and replaces it with two fixed icon links: WP Dashboard and Edit Page. Placement and hover colour are configurable under Bonsai → No Toolbar Edit.
- * Version:     1.4.0
+ * Version:     1.4.1
  * Author:      The Bonsai Digital Collective
  * Author URI:  https://bonsaidigitalcollective.co.uk/
  * Requires at least: 6.0
@@ -32,7 +32,7 @@ $bne_update_checker = PucFactory::buildUpdateChecker(
 $bne_update_checker->setBranch( 'main' );
 $bne_update_checker->getVcsApi()->enableReleaseAssets();
 
-define( 'BNE_VERSION', '1.4.0' );
+define( 'BNE_VERSION', '1.4.1' );
 define( 'BNE_OPTION_GROUP', 'bne_settings_group' );
 define( 'BNE_PAGE_SLUG', 'bonsai-notoolbar-edit' );
 define( 'BNE_DEFAULT_HOVER_COLOR', '#ee4367' );
