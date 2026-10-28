@@ -53,7 +53,7 @@ This plugin's screens live in the shared **Bonsai** admin menu, provided by [Bon
 
 - Don't edit `lib/bonsai-hub/` by hand. Change the bonsai-hub repo and run its `bin/sync.sh`.
 - Old `options-general.php?page=bonsai-notoolbar-edit` links redirect to the new screen.
-- Release zips must include `lib/`.
+- Release zips must include `lib/` and `assets/`.
 
 ## Updates
 

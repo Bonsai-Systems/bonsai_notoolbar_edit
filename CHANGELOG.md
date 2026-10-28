@@ -6,6 +6,11 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
 
+## [1.4.2] - 2026-10-28
+
+### Changed
+- [bonsai-notoolbar-edit.php, assets/js/bne-admin.js] Link Hover Colour now uses the core WordPress colour picker, so a hex value such as `#E95A3A` can be typed or pasted straight in. Includes a **Default** button to reset to `#ee4367`. No option changes.
+
 ## [1.4.1] - 2026-10-05
 
 ### Changed
