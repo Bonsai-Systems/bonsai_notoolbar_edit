@@ -158,8 +158,27 @@ function bne_register_hub_module( $modules ) {
 		'repo'        => 'https://github.com/Bonsai-Systems/bonsai_notoolbar_edit',
 		'capability'  => BNE_SETTINGS_CAPABILITY,
 		'render'      => 'bne_render_settings_page',
+		'enqueue'     => 'bne_enqueue_settings_assets',
 	);
 	return $modules;
+}
+
+/**
+ * Loads the core WordPress colour picker on the settings screen. Unlike the
+ * native type="color" input it has a hex text field, so a value such as
+ * #E95A3A can be pasted straight in.
+ *
+ * @return void
+ */
+function bne_enqueue_settings_assets() {
+	wp_enqueue_style( 'wp-color-picker' );
+	wp_enqueue_script(
+		'bne-admin',
+		BNE_URL . 'assets/js/bne-admin.js',
+		array( 'jquery', 'wp-color-picker' ),
+		BNE_VERSION,
+		true
+	);
 }
 
 add_filter( 'plugin_action_links_' . plugin_basename( __FILE__ ), 'bne_add_settings_link' );
@@ -194,15 +213,18 @@ function bne_render_placement_field() {
 }
 
 function bne_render_hover_color_field() {
-	$value = get_option( 'bne_hover_color', BNE_DEFAULT_HOVER_COLOR );
+	$value = bne_sanitize_hover_color( get_option( 'bne_hover_color', BNE_DEFAULT_HOVER_COLOR ) );
 	?>
 	<input
-		type="color"
+		type="text"
 		id="bne_hover_color"
 		name="bne_hover_color"
+		class="bne-color-field"
 		value="<?php echo esc_attr( $value ); ?>"
+		data-default-color="<?php echo esc_attr( BNE_DEFAULT_HOVER_COLOR ); ?>"
+		maxlength="7"
+		spellcheck="false"
 	/>
-	<code><?php echo esc_html( $value ); ?></code>
 	<p class="description">
 		<?php
 		printf(
